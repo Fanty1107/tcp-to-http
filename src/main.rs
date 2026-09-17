@@ -1,16 +1,17 @@
-use std::{fs::File, io::Read, path::Path};
+use std::{fs::File, io::BufRead, io::BufReader, path::Path};
 
 fn main() -> std::io::Result<()> {
     let path_messages = Path::new("messages.txt");
-    let mut file = File::open(path_messages)?;
-    let mut buffer = [0_u8; 8];
-    //Ler arquivo de 8 em 8 bytes até o final
+    let file = File::open(path_messages)?;
+    let mut buffer = BufReader::new(file);
+    //Ler arquivo de linha em linha
+    let mut line = String::new();
     loop {
-        match file.read(&mut buffer) {
+        line.clear();
+        match buffer.read_line(&mut line) {
             Ok(0) => break,
-            Ok(n_bytes) => {
-                let text = String::from_utf8_lossy(&buffer[..n_bytes]);
-                print!("{text}");
+            Ok(_n_bytes) => {
+                print!("{line}");
             }
             Err(e) => {
                 eprintln!("Erro ao ler arquivo: {e}");
